@@ -36,6 +36,7 @@ public class DummyDataLoader implements CommandLineRunner {
         Company company2 = Company.builder()
                 .name("İnfina Yazılım")
                 .taxNumber("9876543210")
+
                 .email("info@infina.com")
                 .address("İstanbul, Türkiye")
                 .phone("0212 123 45 88")
