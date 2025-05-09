@@ -1,6 +1,7 @@
 package com.example.FaturaIQ.services.concretes;
 
 import com.example.FaturaIQ.dtos.user.CreateUser;
+import com.example.FaturaIQ.dtos.user.UserFilterCretionDto;
 import com.example.FaturaIQ.entities.Company;
 import com.example.FaturaIQ.entities.Role;
 import com.example.FaturaIQ.entities.User;
@@ -10,13 +11,18 @@ import com.example.FaturaIQ.exceptions.UserException;
 import com.example.FaturaIQ.exceptions.UserNotFoundException;
 import com.example.FaturaIQ.repositories.CompanyRepository;
 import com.example.FaturaIQ.repositories.RoleRepository;
+import com.example.FaturaIQ.repositories.Spesifications.UserSpecification;
 import com.example.FaturaIQ.repositories.UserRepository;
 import com.example.FaturaIQ.services.abstracts.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -58,12 +64,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUser(){
+    public List<User> getAllUser() {
         return this.userRepository.findAll().stream().toList();
     }
 
     @Override
-    public User getUserByUsername(String userName){
+    public List<User> getAllUserByCretion(UserFilterCretionDto request) {
+        Pageable pageable = PageRequest.of(request.getPage() != null ? request.getPage() : 0,
+                request.getSize() != null ? request.getSize() : 10);
+
+        Specification<User> spec = Specification
+                .where(request.getUsername() != null ? UserSpecification.hasUsername(request.getUsername()) : null)
+                .and(request.getEmail() != null ? UserSpecification.hasEmail(request.getEmail()) : null);
+
+        return this.userRepository.findAll(spec, pageable).stream().toList();
+    }
+
+    @Override
+    public User getUserByUsername(String userName) {
         return this.userRepository.findByUsername(userName).orElseThrow(UserNotFoundException::new);
     }
 

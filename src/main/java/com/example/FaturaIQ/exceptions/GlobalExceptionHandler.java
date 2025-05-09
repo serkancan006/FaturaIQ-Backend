@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 
-//@ControllerAdvice
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
