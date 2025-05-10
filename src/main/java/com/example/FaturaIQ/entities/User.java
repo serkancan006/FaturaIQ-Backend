@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,10 @@ public class User implements UserDetails {
     private String lastName;
     @Column
     private Boolean isActive;
+    @Column(nullable = true)
+    private String refreshToken;
+    @Column(nullable = true)
+    private Date refreshTokenExpiry;
 
     @JsonManagedReference
     @ManyToMany(fetch = FetchType.EAGER)
@@ -47,7 +52,6 @@ public class User implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
-
 
     private boolean accountNonExpired;
     private boolean isEnabled;

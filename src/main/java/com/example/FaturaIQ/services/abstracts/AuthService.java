@@ -5,4 +5,6 @@ import com.example.FaturaIQ.dtos.auth.TokenDto;
 
 public interface AuthService {
     TokenDto signIn(AuthenticationRequest authenticationRequest);
+
+    TokenDto refreshToken(String refreshToken);
 }

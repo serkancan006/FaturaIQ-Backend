@@ -13,15 +13,8 @@ public interface JwtService {
 
     TokenDto generateJwtToken(String username, List<String> roles, String companyTaxNumber);
 
-    TokenDto generateJwtRefreshToken(String username);
-
     String getUserNameFromJwtToken(String token);
 
-    String getUserNameFromJwtRefreshToken(String token);
-
     boolean validateJwtToken(
-            String authToken) throws SignatureException, MalformedJwtException, ExpiredJwtException, UnsupportedJwtException, IllegalArgumentException, JwtValidationException;
-
-    boolean validateJwtRefreshToken(
             String authToken) throws SignatureException, MalformedJwtException, ExpiredJwtException, UnsupportedJwtException, IllegalArgumentException, JwtValidationException;
 }

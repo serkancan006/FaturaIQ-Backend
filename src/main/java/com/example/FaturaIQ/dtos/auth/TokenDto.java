@@ -12,4 +12,6 @@ import java.util.Date;
 public class TokenDto {
     private String token;
     private Date expirationDate;
+    private String refreshToken;
+    private Date refreshTokenExpiry;
 }

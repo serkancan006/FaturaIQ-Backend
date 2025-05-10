@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @AllArgsConstructor
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -25,8 +27,43 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow(UserNotFoundException::new);
         if(passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword()) &&
                 user.getUsername().equals(authenticationRequest.getUsername())){
-            return jwtService.generateJwtToken(user.getUsername(), user.getRoles().stream().map(Role::getName).toList(), user.getCompany().getTaxNumber());
+
+            TokenDto tokenDto = jwtService.generateJwtToken(
+                    user.getUsername(),
+                    user.getRoles().stream().map(Role::getName).toList(),
+                    user.getCompany().getTaxNumber()
+            );
+
+            // refresh token veritabanına kaydedilir
+            user.setRefreshToken(tokenDto.getRefreshToken());
+            user.setRefreshTokenExpiry(tokenDto.getRefreshTokenExpiry());
+            userRepository.save(user);
+
+            return tokenDto;
         }
         throw new InvalidCredentialsException();
+    }
+
+    @Override
+    public TokenDto refreshToken(String refreshToken) {
+        User user = userRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new IllegalArgumentException("Geçersiz refresh token"));
+
+        if (user.getRefreshTokenExpiry().before(new Date())) {
+            throw new IllegalArgumentException("Refresh token süresi dolmuş");
+        }
+
+        TokenDto newToken = jwtService.generateJwtToken(
+                user.getUsername(),
+                user.getRoles().stream().map(Role::getName).toList(),
+                user.getCompany().getTaxNumber()
+        );
+
+        // Yeni refresh token'ı kullanıcıya ata ve kaydet
+        user.setRefreshToken(newToken.getRefreshToken());
+        user.setRefreshTokenExpiry(newToken.getRefreshTokenExpiry());
+        userRepository.save(user);
+
+        return newToken;
     }
 }
